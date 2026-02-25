@@ -1,0 +1,16 @@
+---
+title: Initial Data Visualization
+author: "Carina Huang, Evan Mularo, Tallulah Bowden"
+output: pdf_document
+editor_options: 
+  chunk_output_type: console
+---
+
+# Setup
+```{r load packages, message=F, warning=F}
+# Load necessary packages
+library(here)
+library(tidyverse)
+
+```
+
