@@ -14,6 +14,7 @@ library(tidyverse)
 library(ggplot2)
 library(readr)
 library(scrutiny)
+library(patchwork)
 
 
 # Load dataset
@@ -27,43 +28,59 @@ bleaching$Distance_to_Shore <- as.numeric(parse_number(bleaching$Distance_to_Sho
 ```{r starting plots, message=F, warning=F}
 # Histograms
 hist_bleaching <- ggplot(bleaching, aes(x = Percent_Bleaching)) +
-  geom_histogram()
+  geom_histogram() +
+  labs(x = "Percent Bleaching",
+       y = "Count")
 hist_bleaching
 
 hist_temp <- ggplot(bleaching, aes(x = Temperature_Mean)) +
-  geom_histogram()
+  geom_histogram() +
+  labs(x = "Mean Temperature (K)",
+       y = "Count")
 hist_temp
 
 hist_turbidity <- ggplot(bleaching, aes(x = Turbidity)) +
-  geom_histogram()
+  geom_histogram() +
+  labs(y = "Count")
 hist_turbidity
 
 hist_cyclone <- ggplot(bleaching, aes(x = Cyclone_Frequency)) +
-  geom_histogram()
+  geom_histogram()+
+  labs(x = "Cyclone Frequency in Past 50 Years",
+       y = "Count")
 hist_cyclone
 
 hist_dist_to_shore <- ggplot(bleaching, aes(x = Distance_to_Shore)) +
-  geom_histogram()
+  geom_histogram() +
+  labs(x = "Distance to Shore (m)",
+       y = "Count")
 hist_dist_to_shore
 
 # Scatter plots
 scatter_distance_to_shore <- ggplot(bleaching, aes(x = Distance_to_Shore,
                                                    y = Percent_Bleaching)) +
-  geom_point()
+  geom_point() +
+  labs(x = "Distance to Shore (m)",
+       y = "Percent Bleaching")
 scatter_distance_to_shore
 
 scatter_turbidity <- ggplot(bleaching, aes(x = Turbidity,
                                            y = Percent_Bleaching)) +
-  geom_point()
+  geom_point() +
+  labs(y = "Percent Bleaching")
 scatter_turbidity
 scatter_temp <- ggplot(bleaching, aes(x = Temperature_Mean,
                                       y = Percent_Bleaching)) +
-  geom_point()
+  geom_point() +
+  labs(x = "Mean Temperature (K)",
+       y = "Percent Bleaching")
 scatter_temp
 
 scatter_cyclone <- ggplot(bleaching, aes(x = Cyclone_Frequency,
                                          y = Percent_Bleaching)) +
-  geom_point()
+  geom_point() +
+  labs(x = "Cyclone Frequency in Past 50 Years",
+       y = "Percent Bleaching")
 scatter_cyclone
 
 # Multi-collinearity
@@ -81,5 +98,22 @@ cor.test(bleaching$Turbidity, bleaching$Distance_to_Shore) # not correlated
 
 cor.test(bleaching$Cyclone_Frequency, bleaching$Distance_to_Shore) # not correlated
 
+```
+
+# Notes from Clay
+# percent data: look into GLM family that people use. probably not binomial. gaussian?
+# Add spatial component. could be used to add categorical variable
+
+```{r figures to submit, message=F, warning=F}
+# Histograms
+histograms <- (hist_bleaching + hist_temp + hist_turbidity) / (hist_cyclone + hist_dist_to_shore) + plot_annotation(
+  title = "Histograms of Covariates")
+histograms
+
+# Scatters
+scatterplots <- (scatter_temp + scatter_turbidity) / (scatter_cyclone + scatter_distance_to_shore) +
+  plot_annotation(
+    title = "Scatterplots of Covariates")
+scatterplots
 ```
 
