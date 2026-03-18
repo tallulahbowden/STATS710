@@ -11,6 +11,75 @@ editor_options:
 # Load necessary packages
 library(here)
 library(tidyverse)
+library(ggplot2)
+library(readr)
+library(scrutiny)
+
+
+# Load dataset
+bleaching <- read.csv("Code/bahamas_florida_bleaching_subset.csv")
+bleaching$Percent_Bleaching <- as.numeric(parse_number(bleaching$Percent_Bleaching))
+bleaching$Temperature_Mean <- as.numeric(parse_number(bleaching$Temperature_Mean))
+bleaching$Turbidity <- as.numeric(parse_number(bleaching$Turbidity))
+bleaching$Distance_to_Shore <- as.numeric(parse_number(bleaching$Distance_to_Shore))
+```
+
+```{r starting plots, message=F, warning=F}
+# Histograms
+hist_bleaching <- ggplot(bleaching, aes(x = Percent_Bleaching)) +
+  geom_histogram()
+hist_bleaching
+
+hist_temp <- ggplot(bleaching, aes(x = Temperature_Mean)) +
+  geom_histogram()
+hist_temp
+
+hist_turbidity <- ggplot(bleaching, aes(x = Turbidity)) +
+  geom_histogram()
+hist_turbidity
+
+hist_cyclone <- ggplot(bleaching, aes(x = Cyclone_Frequency)) +
+  geom_histogram()
+hist_cyclone
+
+hist_dist_to_shore <- ggplot(bleaching, aes(x = Distance_to_Shore)) +
+  geom_histogram()
+hist_dist_to_shore
+
+# Scatter plots
+scatter_distance_to_shore <- ggplot(bleaching, aes(x = Distance_to_Shore,
+                                                   y = Percent_Bleaching)) +
+  geom_point()
+scatter_distance_to_shore
+
+scatter_turbidity <- ggplot(bleaching, aes(x = Turbidity,
+                                           y = Percent_Bleaching)) +
+  geom_point()
+scatter_turbidity
+scatter_temp <- ggplot(bleaching, aes(x = Temperature_Mean,
+                                      y = Percent_Bleaching)) +
+  geom_point()
+scatter_temp
+
+scatter_cyclone <- ggplot(bleaching, aes(x = Cyclone_Frequency,
+                                         y = Percent_Bleaching)) +
+  geom_point()
+scatter_cyclone
+
+# Multi-collinearity
+cor.test(bleaching$Percent_Bleaching, bleaching$Temperature_Mean) # not correlated
+cor.test(bleaching$Percent_Bleaching, bleaching$Turbidity) # not correlated
+cor.test(bleaching$Percent_Bleaching, bleaching$Cyclone_Frequency) # not correlated
+cor.test(bleaching$Percent_Bleaching, bleaching$Distance_to_Shore) # not correlated
+
+cor.test(bleaching$Temperature_Mean, bleaching$Turbidity) # not correlated
+cor.test(bleaching$Temperature_Mean, bleaching$Cyclone_Frequency) # not correlated
+cor.test(bleaching$Temperature_Mean, bleaching$Distance_to_Shore) # not correlated
+
+cor.test(bleaching$Turbidity, bleaching$Cyclone_Frequency) # not correlated
+cor.test(bleaching$Turbidity, bleaching$Distance_to_Shore) # not correlated
+
+cor.test(bleaching$Cyclone_Frequency, bleaching$Distance_to_Shore) # not correlated
 
 ```
 
