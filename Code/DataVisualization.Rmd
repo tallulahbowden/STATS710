@@ -106,7 +106,8 @@ cor.test(bleaching$Cyclone_Frequency, bleaching$Distance_to_Shore) # not correla
 
 ```{r figures to submit, message=F, warning=F}
 # Histograms
-histograms <- (hist_bleaching + hist_temp + hist_turbidity) / (hist_cyclone + hist_dist_to_shore) + plot_annotation(
+histograms <- (hist_bleaching + hist_temp + hist_turbidity) / (hist_cyclone + hist_dist_to_shore) + 
+  plot_annotation(
   title = "Distributions of Each Covariate")
 histograms
 
