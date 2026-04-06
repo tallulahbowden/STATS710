@@ -16,6 +16,7 @@ library(lubridate)
 library(nlme)
 library(gtsummary)
 library(DHARMa)
+library(lme4)
 
 # Load necessary data
 bleaching <- read.csv("Code/bahamas_florida_bleaching_subset.csv")
@@ -57,8 +58,8 @@ plot(bleaching_model1)
 bleaching_model2 <- gls(Bleaching_pct ~ Temperature_Mean + Turbidity + Cyclone_Frequency + Distance_to_Shore, data = bleaching)
 
 # Fit a mixed effects model with random (varying) intercept by plot
-bleaching_mixedm1 <- lme(Bleaching_pct ~ Temperature_Mean + Turbidity + Cyclone_Frequency + Distance_to_Shore, 
-                  random = ~1|Site_ID, data = bleaching)
+bleaching_mixedm1 <- glmer(Bleaching_pct ~ Temperature_Mean + Turbidity + Cyclone_Frequency + Distance_to_Shore + (1|Site_ID), data = bleaching,
+                  family = binomial)
 
 # Compare the two model structures
 AIC(bleaching_model2, bleaching_mixedm1)
