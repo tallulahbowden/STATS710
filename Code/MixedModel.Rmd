@@ -1,0 +1,32 @@
+---
+title: Mixed Model
+authors: "Carina Huang, Evan Mularo, and Tallulah Bowden"
+output: pdf_document
+editor_options: 
+  chunk_output_type: console
+---
+
+# Setup
+
+```{r}
+# Load necessary packages
+library(here)
+library(tidyverse)
+library(lubridate)
+library(nlme)
+library(gtsummary)
+
+# Load necessary data
+bleaching <- read.csv("Code/bahamas_florida_bleaching_subset.csv")
+bleaching$Percent_Bleaching <- as.numeric(parse_number(bleaching$Percent_Bleaching))
+bleaching$Temperature_Mean <- as.numeric(parse_number(bleaching$Temperature_Mean))
+bleaching$Turbidity <- as.numeric(parse_number(bleaching$Turbidity))
+bleaching$Distance_to_Shore <- as.numeric(parse_number(bleaching$Distance_to_Shore))
+```
+
+# Examine Dataframe
+
+```{r}
+str(bleaching)
+```
+
