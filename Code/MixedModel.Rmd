@@ -17,6 +17,9 @@ library(nlme)
 library(gtsummary)
 library(DHARMa)
 library(lme4)
+library(dplyr)
+library(lmerTest)
+
 
 # Load necessary data
 bleaching <- read.csv("Code/bahamas_florida_bleaching_subset.csv")
@@ -31,7 +34,25 @@ bleaching <- bleaching %>%
 
 # Make percent coral bleaching appropriate for binomial regression
 bleaching <- bleaching %>%
-  mutate(Bleaching_pct = Percent_Bleaching/100)
+  mutate(Bleaching_pct = Percent_Bleaching/100) %>% 
+  mutate(Bleaching_pct_log = log10(Bleaching_pct + 0.001)) #log transform bleaching pct
+
+bleaching_combine <- bleaching %>% 
+  group_by(Site_ID) %>% 
+  summarise(mean_pct_bleach = mean(Percent_Bleaching, na.rm = TRUE),
+            mean_temp = mean(Temperature_Mean, na.rm = TRUE),
+            mean_turbidity = mean(Turbidity, na.rm = TRUE),
+            mean_cyclone = mean(Cyclone_Frequency, na.rm = TRUE),
+            mean_distance_to_shore = mean(Distance_to_Shore, na.rm = TRUE)) %>% 
+  mutate(pct_beaching = mean_pct_bleach/100) %>% 
+  mutate(mean_pct_bleaching_log = log10(pct_beaching + 0.001)) #log transform bleaching pct
+
+plot1 <- ggplot(aes(x=Bleaching_pct_log), data = bleaching)+
+  geom_histogram()
+plot1
+
+
+
 ```
 
 
@@ -43,11 +64,20 @@ bleaching <- bleaching %>%
 
 ```{r}
 # Fit linear regression model
-bleaching_model1 <- lm(Bleaching_pct ~ Temperature_Mean + Turbidity + Cyclone_Frequency + Distance_to_Shore,
-                        data = bleaching)
+
+bleaching_model1 <- lm(pct_beaching ~ mean_temp + mean_turbidity + mean_cyclone + mean_distance_to_shore,
+                        data = bleaching_combine)
+
+bleaching_model_log <- lm(mean_pct_bleaching_log ~ mean_temp + mean_turbidity + mean_cyclone + mean_distance_to_shore,
+                        data = bleaching_combine)
+AIC(bleaching_model1)
+AIC(bleaching_model_log)
+
 # Examine the results and residuals
 summary(bleaching_model1)
+summary(bleaching_model_log)
 plot(bleaching_model1)
+plot(bleaching_model_log)
 
 ```
 
@@ -55,11 +85,15 @@ plot(bleaching_model1)
 
 ```{r}
 # Re-fit standard linear regression
-bleaching_model2 <- gls(Bleaching_pct ~ Temperature_Mean + Turbidity + Cyclone_Frequency + Distance_to_Shore, data = bleaching)
+bleaching_model2 <- gls(Bleaching_pct_log ~ Temperature_Mean + Turbidity + Cyclone_Frequency + Distance_to_Shore, 
+                        data = bleaching)
 
 # Fit a mixed effects model with random (varying) intercept by plot
-bleaching_mixedm1 <- glmer(Bleaching_pct ~ Temperature_Mean + Turbidity + Cyclone_Frequency + Distance_to_Shore + (1|Site_ID), data = bleaching,
-                  family = binomial)
+
+bleaching_mixedm1 <- lmer(Bleaching_pct_log ~ Temperature_Mean + Turbidity + Cyclone_Frequency + Distance_to_Shore + (1|Site_ID),
+                          data = bleaching,
+                          REML = FALSE,
+                          control = lmerControl(autoscale = TRUE), bleaching)
 
 # Compare the two model structures
 AIC(bleaching_model2, bleaching_mixedm1)
@@ -71,8 +105,16 @@ plot(bleaching_mixedm1)
 qqnorm(bleaching_mixedm1)
 
 # Examine model results
-summary(bleaching_mixedm1)
+summary(bleaching_mixedm1) 
+
 ```
+
+```{r}
+bleaching_mixedm1 <- lmer(Bleaching_pct ~ Temperature_Mean + Turbidity + Cyclone_Frequency + Distance_to_Shore + (1|Site_ID),
+                          data = bleaching, 
+                          REML = TRUE)
+```
+
 
 # Visualize
 
