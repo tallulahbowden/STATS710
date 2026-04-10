@@ -21,6 +21,7 @@ library(dplyr)
 library(lmerTest)
 library(sjPlot)
 library(plotly)
+library(car)
 
 
 # Load necessary data
@@ -125,18 +126,12 @@ bleaching_mixedm1 <- lmer(Bleaching_pct ~ Temperature_Mean + Turbidity + Cyclone
 # Plot coefficients with variation
 plot_model(bleaching_model_log, show.values = T)
 
-# 3D plot with temperature and turbidity
-plot_ly(bleaching_combine, x = ~mean_distance_to_shore, y = ~mean_cyclone, z = ~mean_pct_bleaching_log, type = "scatter3d", mode = "markers", alpha = 0.5)
+# 3D plot with cyclone and distance to shore
+plot_ly(bleaching_combine, x = ~mean_distance_to_shore, y = ~mean_cyclone, z = ~mean_pct_bleaching_log, type = "scatter3d", mode = "markers", alpha = 0.7)
 
+# Added variable plots
+avPlots(bleaching_model_log)
 
-fig1 <- ggplot(bleaching, aes(x = Turbidity, y = Bleaching_pct)) +
- # geom_boxplot(width = 0.2) +
-  geom_point(aes(color = Site_ID), size = 3,  alpha = 0.5) +
-  #scale_color_manual(values = c("#ECBD95", "#FFAA00", "#D46F10", "#4CA49E", 
-   #                             "#69B9FA", "#4B8FF7", "grey30")) +
-  labs(x = "Turbidity",
-       y = "PCT Bleaching") +
-  theme_bw()
-fig1
+# Make table with results
 ```
 
