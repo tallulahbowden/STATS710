@@ -19,6 +19,8 @@ library(DHARMa)
 library(lme4)
 library(dplyr)
 library(lmerTest)
+library(sjPlot)
+library(plotly)
 
 
 # Load necessary data
@@ -47,7 +49,8 @@ bleaching_combine <- bleaching %>%
   mutate(pct_beaching = mean_pct_bleach/100) %>% 
   mutate(mean_pct_bleaching_log = log10(pct_beaching + 0.001)) #log transform bleaching pct
 
-plot1 <- ggplot(aes(x=Bleaching_pct_log), data = bleaching)+
+# Visualize the log transformed percent bleaching cover. still not normally distributed
+plot1 <- ggplot(aes(x=mean_pct_bleaching_log), data = bleaching_combine)+
   geom_histogram()
 plot1
 
@@ -81,7 +84,7 @@ plot(bleaching_model_log)
 
 ```
 
-### Step 4: Fit linear regression model with random effect and evaluate model diagnostics
+### THIS WAS STUFF WITH THE MIXED MODEL
 
 ```{r}
 # Re-fit standard linear regression
@@ -119,7 +122,13 @@ bleaching_mixedm1 <- lmer(Bleaching_pct ~ Temperature_Mean + Turbidity + Cyclone
 # Visualize
 
 ```{r}
-# Sample report visualization
+# Plot coefficients with variation
+plot_model(bleaching_model_log, show.values = T)
+
+# 3D plot with temperature and turbidity
+plot_ly(bleaching_combine, x = ~mean_distance_to_shore, y = ~mean_cyclone, z = ~mean_pct_bleaching_log, type = "scatter3d", mode = "markers", alpha = 0.5)
+
+
 fig1 <- ggplot(bleaching, aes(x = Turbidity, y = Bleaching_pct)) +
  # geom_boxplot(width = 0.2) +
   geom_point(aes(color = Site_ID), size = 3,  alpha = 0.5) +
