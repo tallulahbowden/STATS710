@@ -22,7 +22,6 @@ library(lmerTest)
 library(sjPlot)
 library(plotly)
 library(car)
-library(modelsummary)
 
 
 # Load necessary data
