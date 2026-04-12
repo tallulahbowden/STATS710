@@ -23,80 +23,93 @@ bleaching$Percent_Bleaching <- as.numeric(parse_number(bleaching$Percent_Bleachi
 bleaching$Temperature_Mean <- as.numeric(parse_number(bleaching$Temperature_Mean))
 bleaching$Turbidity <- as.numeric(parse_number(bleaching$Turbidity))
 bleaching$Distance_to_Shore <- as.numeric(parse_number(bleaching$Distance_to_Shore))
+
+bleaching_combine <- bleaching %>% 
+  group_by(Site_ID) %>% 
+  summarise(mean_pct_bleach = mean(Percent_Bleaching, na.rm = TRUE),
+            mean_temp = mean(Temperature_Mean, na.rm = TRUE),
+            mean_turbidity = mean(Turbidity, na.rm = TRUE),
+            mean_cyclone = mean(Cyclone_Frequency, na.rm = TRUE),
+            mean_distance_to_shore = mean(Distance_to_Shore, na.rm = TRUE)) %>% 
+  mutate(pct_beaching = mean_pct_bleach/100) %>% 
+  mutate(mean_pct_bleaching_log = log10(pct_beaching + 0.001)) %>%
+  drop_na()
+#log transform bleaching pct
 ```
 
 ```{r starting plots, message=F, warning=F}
 # Histograms
-hist_bleaching <- ggplot(bleaching, aes(x = Percent_Bleaching)) +
+hist_bleaching <- ggplot(bleaching_combine, aes(x = mean_pct_bleaching_log)) +
   geom_histogram(fill = "blue") +
-  labs(x = "Percent Bleaching",
+  labs(x = "Log Percent Bleaching",
        y = "Count")
 hist_bleaching
 
-hist_temp <- ggplot(bleaching, aes(x = Temperature_Mean)) +
+hist_temp <- ggplot(bleaching_combine, aes(x = mean_temp)) +
   geom_histogram(fill = "blue") +
   labs(x = "Mean Temperature (K)",
        y = "Count")
 hist_temp
 
-hist_turbidity <- ggplot(bleaching, aes(x = Turbidity)) +
+hist_turbidity <- ggplot(bleaching_combine, aes(x = mean_turbidity)) +
   geom_histogram(fill = "blue") +
   labs(y = "Count")
 hist_turbidity
 
-hist_cyclone <- ggplot(bleaching, aes(x = Cyclone_Frequency)) +
+hist_cyclone <- ggplot(bleaching_combine, aes(x = mean_cyclone)) +
   geom_histogram(fill = "blue")+
   labs(x = "Cyclone Frequency in Past 50 Years",
        y = "Count")
 hist_cyclone
 
-hist_dist_to_shore <- ggplot(bleaching, aes(x = Distance_to_Shore)) +
+hist_dist_to_shore <- ggplot(bleaching_combine, aes(x = mean_distance_to_shore)) +
   geom_histogram(fill = "blue") +
   labs(x = "Distance to Shore (m)",
        y = "Count")
 hist_dist_to_shore
 
 # Scatter plots
-scatter_distance_to_shore <- ggplot(bleaching, aes(x = Distance_to_Shore,
-                                                   y = Percent_Bleaching)) +
+scatter_distance_to_shore <- ggplot(bleaching_combine, aes(x = mean_distance_to_shore,
+                                                   y = mean_pct_bleaching_log)) +
   geom_point(color = "blue", alpha = 0.5) +
   labs(x = "Distance to Shore (m)",
-       y = "Percent Bleaching")
+       y = "Log Percent Bleaching")
 scatter_distance_to_shore
 
-scatter_turbidity <- ggplot(bleaching, aes(x = Turbidity,
-                                           y = Percent_Bleaching)) +
+scatter_turbidity <- ggplot(bleaching_combine, aes(x = mean_turbidity,
+                                           y = mean_pct_bleaching_log)) +
   geom_point(color = "blue", alpha = 0.5) +
-  labs(y = "Percent Bleaching")
+  labs(y = "Log Percent Bleaching",
+       x = "Turbidity")
 scatter_turbidity
-scatter_temp <- ggplot(bleaching, aes(x = Temperature_Mean,
-                                      y = Percent_Bleaching)) +
+scatter_temp <- ggplot(bleaching_combine, aes(x = mean_temp,
+                                      y = mean_pct_bleaching_log)) +
   geom_point(color = "blue", alpha = 0.5) +
   labs(x = "Mean Temperature (K)",
-       y = "Percent Bleaching")
+       y = "Log Percent Bleaching")
 scatter_temp
 
-scatter_cyclone <- ggplot(bleaching, aes(x = Cyclone_Frequency,
-                                         y = Percent_Bleaching)) +
+scatter_cyclone <- ggplot(bleaching_combine, aes(x = mean_cyclone,
+                                         y = mean_pct_bleaching_log)) +
   geom_point(color = "blue", alpha = 0.5) +
   labs(x = "Cyclone Frequency in Past 50 Years",
-       y = "Percent Bleaching")
+       y = "Log Percent Bleaching")
 scatter_cyclone
 
 # Multi-collinearity
-cor.test(bleaching$Percent_Bleaching, bleaching$Temperature_Mean) # not correlated
-cor.test(bleaching$Percent_Bleaching, bleaching$Turbidity) # not correlated
-cor.test(bleaching$Percent_Bleaching, bleaching$Cyclone_Frequency) # not correlated
-cor.test(bleaching$Percent_Bleaching, bleaching$Distance_to_Shore) # not correlated
+cor.test(bleaching_combine$mean_pct_bleaching_log, bleaching_combine$mean_temp) # not correlated
+cor.test(bleaching_combine$mean_pct_bleaching_log, bleaching_combine$mean_turbidity) # not correlated
+cor.test(bleaching_combine$mean_pct_bleaching_log, bleaching_combine$mean_cyclone) # not correlated
+cor.test(bleaching_combine$mean_pct_bleaching_log, bleaching_combine$mean_distance_to_shore) # not correlated
 
-cor.test(bleaching$Temperature_Mean, bleaching$Turbidity) # not correlated
-cor.test(bleaching$Temperature_Mean, bleaching$Cyclone_Frequency) # not correlated
-cor.test(bleaching$Temperature_Mean, bleaching$Distance_to_Shore) # not correlated
+cor.test(bleaching_combine$mean_temp, bleaching_combine$mean_turbidity) # not correlated
+cor.test(bleaching_combine$mean_temp, bleaching_combine$mean_cyclone) # not correlated
+cor.test(bleaching_combine$mean_temp, bleaching_combine$mean_distance_to_shore) # not correlated
 
-cor.test(bleaching$Turbidity, bleaching$Cyclone_Frequency) # not correlated
-cor.test(bleaching$Turbidity, bleaching$Distance_to_Shore) # not correlated
+cor.test(bleaching_combine$mean_turbidity, bleaching_combine$mean_cyclone) # not correlated
+cor.test(bleaching_combine$mean_turbidity, bleaching_combine$mean_distance_to_shore) # not correlated
 
-cor.test(bleaching$Cyclone_Frequency, bleaching$Distance_to_Shore) # not correlated
+cor.test(bleaching_combine$mean_cyclone, bleaching_combine$mean_distance_to_shore) # not correlated
 
 ```
 
