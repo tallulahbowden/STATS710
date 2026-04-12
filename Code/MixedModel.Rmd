@@ -22,6 +22,7 @@ library(lmerTest)
 library(sjPlot)
 library(plotly)
 library(car)
+library(modelsummary)
 
 
 # Load necessary data
@@ -124,14 +125,17 @@ bleaching_mixedm1 <- lmer(Bleaching_pct ~ Temperature_Mean + Turbidity + Cyclone
 
 ```{r}
 # Plot coefficients with variation
-plot_model(bleaching_model_log, show.values = T)
+plot_model(bleaching_model_log, show.values = T,
+           title = "Model Coefficients for Covariates Describing Log Percent Bleaching",
+           axis.labels = c("Mean Distance to Shore (m)", "Mean Cyclone Number", "Mean Turbidity", "Mean Temperature (K)"))
 
 # 3D plot with cyclone and distance to shore
-plot_ly(bleaching_combine, x = ~mean_distance_to_shore, y = ~mean_cyclone, z = ~mean_pct_bleaching_log, type = "scatter3d", mode = "markers", alpha = 0.7)
+plot_ly(bleaching_combine, x = ~mean_temp, y = ~mean_cyclone, z = ~mean_pct_bleaching_log, type = "scatter3d", mode = "markers", alpha = 0.7)
 
 # Added variable plots
 avPlots(bleaching_model_log)
 
 # Make table with results
+tbl_regression(bleaching_model_log)
 ```
 
