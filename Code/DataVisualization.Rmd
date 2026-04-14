@@ -40,30 +40,30 @@ bleaching_combine <- bleaching %>%
 ```{r starting plots, message=F, warning=F}
 # Histograms
 hist_bleaching <- ggplot(bleaching_combine, aes(x = mean_pct_bleaching_log)) +
-  geom_histogram(fill = "blue") +
+  geom_histogram(fill = "deepskyblue3") +
   labs(x = "Log Percent Bleaching",
        y = "Count")
 hist_bleaching
 
 hist_temp <- ggplot(bleaching_combine, aes(x = mean_temp)) +
-  geom_histogram(fill = "blue") +
+  geom_histogram(fill = "deepskyblue3") +
   labs(x = "Mean Temperature (K)",
        y = "Count")
 hist_temp
 
 hist_turbidity <- ggplot(bleaching_combine, aes(x = mean_turbidity)) +
-  geom_histogram(fill = "blue") +
+  geom_histogram(fill = "deepskyblue3") +
   labs(y = "Count")
 hist_turbidity
 
 hist_cyclone <- ggplot(bleaching_combine, aes(x = mean_cyclone)) +
-  geom_histogram(fill = "blue")+
+  geom_histogram(fill = "deepskyblue3")+
   labs(x = "Cyclone Frequency in Past 50 Years",
        y = "Count")
 hist_cyclone
 
 hist_dist_to_shore <- ggplot(bleaching_combine, aes(x = mean_distance_to_shore)) +
-  geom_histogram(fill = "blue") +
+  geom_histogram(fill = "deepskyblue3") +
   labs(x = "Distance to Shore (m)",
        y = "Count")
 hist_dist_to_shore
@@ -71,27 +71,27 @@ hist_dist_to_shore
 # Scatter plots
 scatter_distance_to_shore <- ggplot(bleaching_combine, aes(x = mean_distance_to_shore,
                                                    y = mean_pct_bleaching_log)) +
-  geom_point(color = "blue", alpha = 0.5) +
+  geom_point(color = "deepskyblue3", alpha = 0.5) +
   labs(x = "Distance to Shore (m)",
        y = "Log Percent Bleaching")
 scatter_distance_to_shore
 
 scatter_turbidity <- ggplot(bleaching_combine, aes(x = mean_turbidity,
                                            y = mean_pct_bleaching_log)) +
-  geom_point(color = "blue", alpha = 0.5) +
+  geom_point(color = "deepskyblue3", alpha = 0.5) +
   labs(y = "Log Percent Bleaching",
        x = "Turbidity")
 scatter_turbidity
 scatter_temp <- ggplot(bleaching_combine, aes(x = mean_temp,
                                       y = mean_pct_bleaching_log)) +
-  geom_point(color = "blue", alpha = 0.5) +
+  geom_point(color = "deepskyblue3", alpha = 0.5) +
   labs(x = "Mean Temperature (K)",
        y = "Log Percent Bleaching")
 scatter_temp
 
 scatter_cyclone <- ggplot(bleaching_combine, aes(x = mean_cyclone,
                                          y = mean_pct_bleaching_log)) +
-  geom_point(color = "blue", alpha = 0.5) +
+  geom_point(color = "deepskyblue3", alpha = 0.5) +
   labs(x = "Cyclone Frequency in Past 50 Years",
        y = "Log Percent Bleaching")
 scatter_cyclone
