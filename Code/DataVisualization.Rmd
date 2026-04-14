@@ -45,6 +45,12 @@ hist_bleaching <- ggplot(bleaching_combine, aes(x = mean_pct_bleaching_log)) +
        y = "Count")
 hist_bleaching
 
+hist_bleaching1 <- ggplot(bleaching_combine, aes(x = pct_beaching)) +
+  geom_histogram(fill = "deepskyblue3") +
+  labs(x = "Percent Bleaching",
+       y = "Count")
+hist_bleaching1
+
 hist_temp <- ggplot(bleaching_combine, aes(x = mean_temp)) +
   geom_histogram(fill = "deepskyblue3") +
   labs(x = "Mean Temperature (K)",
