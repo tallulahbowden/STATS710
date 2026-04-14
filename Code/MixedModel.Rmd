@@ -152,3 +152,31 @@ avPlots(bleaching_model_log)
 tbl_regression(bleaching_model_log)
 ```
 
+```{r}
+# setting threshold for pct bleaching (>50%)
+bleaching_3 <- bleaching_2 %>% 
+  mutate(pct_bleaching_50 = case_when(pct_beaching >= 0.5 ~ 1,
+                                      TRUE ~ 0),
+         levels = c(1, 0))
+
+# setting threshold for pct bleaching try again
+bleaching_3 <- bleaching_2 %>% 
+  mutate(pct_bleaching_50 = ifelse(pct_beaching >=0.5, 1, 0))
+
+# data distribution
+hist_bleaching3 <- ggplot(bleaching_3, aes(x = pct_bleaching_50)) +
+  geom_histogram(fill = "deepskyblue3") +
+  labs(x = "Percent Bleaching > 50%",
+       y = "Count")
+hist_bleaching3
+
+# fit logistic regression model
+bleaching_model3 <- glm(pct_bleaching_50 ~ mean_temp + mean_turbidity + mean_cyclone + mean_distance_to_shore,
+                        family = binomial, 
+                        data = bleaching_3)
+summary(bleaching_model3)
+AIC(bleaching_model3)
+simulateResiduals(bleaching_model3) %>% plot()
+
+```
+
