@@ -48,7 +48,7 @@ bleaching_combine <- bleaching %>%
             mean_cyclone = mean(Cyclone_Frequency, na.rm = TRUE),
             mean_distance_to_shore = mean(Distance_to_Shore, na.rm = TRUE)) %>% 
   mutate(pct_beaching = mean_pct_bleach/100) %>% 
-  mutate(mean_pct_bleaching_log = log10(pct_beaching + 0.001)) #log transform bleaching pct
+  mutate(mean_pct_bleaching_log = log10(pct_beaching + 0.001))  #log transform bleaching pct 
 
 # Visualize the log transformed percent bleaching cover. still not normally distributed
 plot1 <- ggplot(aes(x=mean_pct_bleaching_log), data = bleaching_combine)+
@@ -56,9 +56,23 @@ plot1 <- ggplot(aes(x=mean_pct_bleaching_log), data = bleaching_combine)+
 plot1
 
 
-
 ```
 
+```{r}
+# trying to get rid of the 0 results and fitting the model again
+bleaching_2 <-bleaching_combine %>% 
+  filter(mean_pct_bleach !=0)
+plot2 <- ggplot(aes(x=mean_pct_bleaching_log), data = bleaching_2)+
+  geom_histogram()
+plot2
+
+#linear regression model
+bleaching_model_log3 <- lm(mean_pct_bleaching_log ~ mean_temp + mean_turbidity + mean_cyclone + mean_distance_to_shore,
+                        data = bleaching_2)
+AIC(bleaching_model_log3)
+summary(bleaching_model_log3)
+plot(bleaching_model_log3)
+```
 
 ### Step 1: Define your research question.
 
