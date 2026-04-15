@@ -183,6 +183,7 @@ simulateResiduals(bleaching_binomial_model) %>%
 
 ```{r}
 # Plot predictions
+# Helpful website: https://statsandr.com/blog/binary-logistic-regression-in-r/
 plot_model(bleaching_binomial_model, title = "",
   type = "pred",
   terms = "mean_temp_c") +
