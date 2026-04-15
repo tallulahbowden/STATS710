@@ -1,6 +1,8 @@
 ---
 title: "Binomial_GLM_Model"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r}
@@ -63,7 +65,7 @@ bleaching_aoi_grouped <- bleaching_aoi_grouped %>%
 # data exploration
 histo_temp <- ggplot(bleaching_aoi_grouped, aes(x = mean_temp_c)) +
   geom_histogram(fill = "deepskyblue3") +
-  labs(x = "Temperature",
+  labs(x = "Temperature (°C)",
        y = "Count")
 histo_temp
 
@@ -75,25 +77,25 @@ histo_turbidity
 
 histo_cyclone <- ggplot(bleaching_aoi_grouped, aes(x = mean_cyclone)) +
   geom_histogram(fill = "deepskyblue3") +
-  labs(x = "Cyclone",
+  labs(x = "Cyclone Frequency",
        y = "Count")
 histo_cyclone
 
 histo_distance <- ggplot(bleaching_aoi_grouped, aes(x = mean_distance_to_shore)) +
   geom_histogram(fill = "deepskyblue3") +
-  labs(x = "Distance to Shore (meter) ",
+  labs(x = "Distance to Shore (m) ",
        y = "Count")
 histo_distance
 
 histo_depth <- ggplot(bleaching_aoi_grouped, aes(x = mean_depth)) +
   geom_histogram(fill = "deepskyblue3") +
-  labs(x = "Depth (meter) ",
+  labs(x = "Depth (m) ",
        y = "Count")
 histo_depth
 
 histo_mass_bleach <- ggplot(bleaching_aoi_grouped, aes(x = pct_bleaching_50)) +
-  geom_histogram(fill = "deepskyblue3") +
-  labs(x = "Mass Bleaching ",
+  geom_bar(fill = "deepskyblue3") +
+  labs(x = "Mass Bleaching Presence",
        y = "Count")
 histo_mass_bleach
 
@@ -107,11 +109,51 @@ ggplot(aes(x = mean_temp_c, y = mean_pct_bleach))+
 ```
 
 ```{r}
+# Histogram for presentation
+histograms <- (histo_mass_bleach + histo_temp + histo_turbidity) / (histo_cyclone + histo_distance + histo_depth)  
+ # plot_annotation(
+ # title = "Distributions of Each Covariate Relevant to Coral Bleaching")
+histograms
+
+# Scatters
+scatterplots <- (scatter_temp + scatter_turbidity) / (scatter_cyclone + scatter_distance_to_shore) +
+  plot_annotation(
+    title = "Relationship Between Covariates and Percent Bleaching")
+scatterplots
+```
+
+
+```{r}
+# Check for multi-collinearity
+cor.test(bleaching_aoi_grouped$pct_bleaching_50, bleaching_aoi_grouped$mean_temp_c) # not correlated
+cor.test(bleaching_aoi_grouped$pct_bleaching_50, bleaching_aoi_grouped$mean_turbidity) # not correlated
+cor.test(bleaching_aoi_grouped$pct_bleaching_50, bleaching_aoi_grouped$mean_cyclone) # not correlated
+cor.test(bleaching_aoi_grouped$pct_bleaching_50, bleaching_aoi_grouped$mean_distance_to_shore) # not correlated
+cor.test(bleaching_aoi_grouped$pct_bleaching_50, bleaching_aoi_grouped$mean_depth) # not correlated
+
+cor.test(bleaching_aoi_grouped$mean_temp, bleaching_aoi_grouped$mean_turbidity) # not correlated
+cor.test(bleaching_aoi_grouped$mean_temp, bleaching_aoi_grouped$mean_cyclone) # not correlated
+cor.test(bleaching_aoi_grouped$mean_temp, bleaching_aoi_grouped$mean_distance_to_shore) # not correlated
+cor.test(bleaching_aoi_grouped$mean_temp, bleaching_aoi_grouped$mean_depth) # not correlated
+
+cor.test(bleaching_aoi_grouped$mean_turbidity, bleaching_aoi_grouped$mean_cyclone) # not correlated
+cor.test(bleaching_aoi_grouped$mean_turbidity, bleaching_aoi_grouped$mean_distance_to_shore) # not correlated
+cor.test(bleaching_aoi_grouped$mean_turbidity, bleaching_aoi_grouped$mean_depth) # not correlated
+
+cor.test(bleaching_aoi_grouped$mean_cyclone, bleaching_aoi_grouped$mean_distance_to_shore) # not correlated
+cor.test(bleaching_aoi_grouped$mean_cyclone, bleaching_aoi_grouped$mean_depth) # not correlated
+
+cor.test(bleaching_aoi_grouped$mean_distance_to_shore,
+         bleaching_aoi_grouped$mean_depth) # not correlated
+```
+
+
+```{r}
 
 # fit logistic regression model
 #in this part of the code, if we remove depth / distance to shore, the results would look slightly different
 # so feel free to play around with the different variables
-bleaching_binomial_model <- glm(pct_bleaching_50 ~ mean_temp_c  + mean_cyclone + mean_turbidity,
+bleaching_binomial_model <- glm(pct_bleaching_50 ~ mean_temp_c  + mean_cyclone + mean_turbidity + mean_depth,
                         family = binomial, 
                         data = bleaching_aoi_grouped)
 summary(bleaching_binomial_model)
