@@ -99,6 +99,24 @@ histo_mass_bleach <- ggplot(bleaching_aoi_grouped, aes(x = pct_bleaching_50)) +
        y = "Count")
 histo_mass_bleach
 
+scatter_temp <- ggplot(bleaching_aoi_grouped, aes(x = mean_temp_c, y = pct_bleaching_50)) +
+  geom_point(color = "deepskyblue4") +
+  labs(x = "Temperature (°C)",
+       y = "Mass Bleaching Presence") 
+scatter_temp
+
+scatter_cyclone <- ggplot(bleaching_aoi_grouped, aes(x = mean_cyclone, y = pct_bleaching_50)) +
+  geom_point(color = "deepskyblue4") +
+  labs(x = "Cyclone Frequency",
+       y = "Mass Bleaching Presence")
+scatter_cyclone
+
+scatter_turbidity <- ggplot(bleaching_aoi_grouped, aes(x = mean_turbidity, y = pct_bleaching_50)) +
+  geom_point(color = "deepskyblue4") +
+  labs(x = "Turbidity",
+       y = "Mass Bleaching Presence")
+scatter_turbidity
+
 # understanding how the 0s affect our linear relationship
 bleaching_aoi_grouped %>% 
 filter(mean_pct_bleach !=0) %>% 
@@ -110,15 +128,13 @@ ggplot(aes(x = mean_temp_c, y = mean_pct_bleach))+
 
 ```{r}
 # Histogram for presentation
-histograms <- (histo_mass_bleach + histo_temp + histo_turbidity) / (histo_cyclone + histo_distance + histo_depth)  
+histograms <- (histo_mass_bleach + histo_temp) / (histo_cyclone + histo_turbidity)  
  # plot_annotation(
  # title = "Distributions of Each Covariate Relevant to Coral Bleaching")
 histograms
 
 # Scatters
-scatterplots <- (scatter_temp + scatter_turbidity) / (scatter_cyclone + scatter_distance_to_shore) +
-  plot_annotation(
-    title = "Relationship Between Covariates and Percent Bleaching")
+scatterplots <- (scatter_temp + scatter_turbidity) + (scatter_cyclone)
 scatterplots
 ```
 
@@ -160,5 +176,4 @@ summary(bleaching_binomial_model)
 AIC(bleaching_binomial_model)
 simulateResiduals(bleaching_binomial_model) %>% 
   plot()
-
 ```
