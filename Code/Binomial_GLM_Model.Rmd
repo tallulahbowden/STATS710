@@ -1,0 +1,122 @@
+---
+title: "Binomial_GLM_Model"
+output: html_document
+---
+
+```{r}
+# Load necessary packages
+library(here)
+library(tidyverse)
+library(lubridate)
+library(nlme)
+library(gtsummary)
+library(DHARMa)
+library(lme4)
+library(dplyr)
+library(lmerTest)
+library(sjPlot)
+library(plotly)
+library(car)
+
+#load data
+bleaching_all <- read.csv("Code/global_bleaching_environmental.csv")
+
+# filtering bleaching data for area of interest (aoi)
+bleaching_aoi <- bleaching_all %>% 
+  filter(Ecoregion_Name == "Bahamas and Florida Keys")
+
+#convert to numeric
+bleaching_aoi$Percent_Bleaching <- as.numeric(parse_number(bleaching_aoi$Percent_Bleaching))
+bleaching_aoi$Temperature_Mean <- as.numeric(parse_number(bleaching_aoi$Temperature_Mean))
+bleaching_aoi$Turbidity <- as.numeric(parse_number(bleaching_aoi$Turbidity))
+bleaching_aoi$Distance_to_Shore <- as.numeric(parse_number(bleaching_aoi$Distance_to_Shore))
+bleaching_aoi$Depth_m <- as.numeric(parse_number(bleaching_aoi$Depth_m))
+
+#drop na
+bleaching_aoi <- bleaching_aoi %>% 
+  drop_na()
+
+#convert percent bleaching
+bleaching_aoi <- bleaching_aoi %>% 
+  mutate(pct_bleaching = Percent_Bleaching/100)
+
+#group by site ID
+bleaching_aoi_grouped <- bleaching_aoi %>% 
+  group_by(Site_ID) %>% 
+  summarise(mean_pct_bleach = mean(pct_bleaching, na.rm = TRUE),
+            mean_temp = mean(Temperature_Mean, na.rm = TRUE),
+            mean_turbidity = mean(Turbidity, na.rm = TRUE),
+            mean_cyclone = mean(Cyclone_Frequency, na.rm = TRUE),
+            mean_distance_to_shore = mean(Distance_to_Shore, na.rm = TRUE),
+            mean_depth = mean(Depth_m, na.rm = TRUE)) %>% 
+  mutate(mean_temp_c = mean_temp - 273.15)
+
+# setting threshold for mass bleaching
+bleaching_aoi_grouped <- bleaching_aoi_grouped %>% 
+  mutate(pct_bleaching_50 = ifelse(mean_pct_bleach >=0.5, 1, 0)) %>% 
+  mutate(pct_bleaching_25 = ifelse(mean_pct_bleach >=0.25, 1, 0))
+
+
+```
+
+```{r}
+# data exploration
+histo_temp <- ggplot(bleaching_aoi_grouped, aes(x = mean_temp_c)) +
+  geom_histogram(fill = "deepskyblue3") +
+  labs(x = "Temperature",
+       y = "Count")
+histo_temp
+
+histo_turbidity <- ggplot(bleaching_aoi_grouped, aes(x = mean_turbidity)) +
+  geom_histogram(fill = "deepskyblue3") +
+  labs(x = "Turbidity",
+       y = "Count")
+histo_turbidity
+
+histo_cyclone <- ggplot(bleaching_aoi_grouped, aes(x = mean_cyclone)) +
+  geom_histogram(fill = "deepskyblue3") +
+  labs(x = "Cyclone",
+       y = "Count")
+histo_cyclone
+
+histo_distance <- ggplot(bleaching_aoi_grouped, aes(x = mean_distance_to_shore)) +
+  geom_histogram(fill = "deepskyblue3") +
+  labs(x = "Distance to Shore (meter) ",
+       y = "Count")
+histo_distance
+
+histo_depth <- ggplot(bleaching_aoi_grouped, aes(x = mean_depth)) +
+  geom_histogram(fill = "deepskyblue3") +
+  labs(x = "Depth (meter) ",
+       y = "Count")
+histo_depth
+
+histo_mass_bleach <- ggplot(bleaching_aoi_grouped, aes(x = pct_bleaching_50)) +
+  geom_histogram(fill = "deepskyblue3") +
+  labs(x = "Mass Bleaching ",
+       y = "Count")
+histo_mass_bleach
+
+# understanding how the 0s affect our linear relationship
+bleaching_aoi_grouped %>% 
+filter(mean_pct_bleach !=0) %>% 
+ggplot(aes(x = mean_temp_c, y = mean_pct_bleach))+
+  geom_point()+
+  geom_smooth(method = "lm")
+
+```
+
+```{r}
+
+# fit logistic regression model
+#in this part of the code, if we remove depth / distance to shore, the results would look slightly different
+# so feel free to play around with the different variables
+bleaching_binomial_model <- glm(pct_bleaching_50 ~ mean_temp_c  + mean_cyclone + mean_turbidity,
+                        family = binomial, 
+                        data = bleaching_aoi_grouped)
+summary(bleaching_binomial_model)
+AIC(bleaching_binomial_model)
+simulateResiduals(bleaching_binomial_model) %>% 
+  plot()
+
+```
