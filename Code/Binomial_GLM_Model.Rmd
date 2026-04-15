@@ -169,7 +169,10 @@ cor.test(bleaching_aoi_grouped$mean_distance_to_shore,
 # fit logistic regression model
 #in this part of the code, if we remove depth / distance to shore, the results would look slightly different
 # so feel free to play around with the different variables
-bleaching_binomial_model <- glm(pct_bleaching_50 ~ mean_temp_c  + mean_cyclone + mean_turbidity + mean_depth,
+bleaching_aoi_grouped$pct_bleaching_50 <- factor(bleaching_aoi_grouped$pct_bleaching_50,
+  levels = c(0, 1))
+
+bleaching_binomial_model <- glm(pct_bleaching_50 ~ mean_temp_c  + mean_cyclone + mean_turbidity,
                         family = binomial, 
                         data = bleaching_aoi_grouped)
 summary(bleaching_binomial_model)
@@ -177,3 +180,19 @@ AIC(bleaching_binomial_model)
 simulateResiduals(bleaching_binomial_model) %>% 
   plot()
 ```
+
+```{r}
+# Plot predictions
+plot_model(bleaching_binomial_model, title = "",
+  type = "pred",
+  terms = "mean_temp_c") +
+  labs(x = "Temperature (°C)",
+    y = "Probability of Mass Bleaching")
+
+plot_model(bleaching_binomial_model, title = "",
+           type = "pred",
+           terms = "mean_turbidity") +
+  labs(x = "Turbidity",
+       y = "Probability of Mass Bleaching")
+```
+
