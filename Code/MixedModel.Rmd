@@ -176,7 +176,8 @@ bleaching_model3 <- glm(pct_bleaching_50 ~ mean_temp + mean_turbidity + mean_cyc
                         data = bleaching_3)
 summary(bleaching_model3)
 AIC(bleaching_model3)
-simulateResiduals(bleaching_model3) %>% plot()
+simulateResiduals(bleaching_model3) %>% 
+  plot()
 
 ```
 
