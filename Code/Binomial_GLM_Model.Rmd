@@ -1,6 +1,8 @@
 ---
 title: "Binomial_GLM_Model"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r}
@@ -64,7 +66,7 @@ bleaching_aoi_grouped <- bleaching_aoi_grouped %>%
 # data exploration
 histo_temp <- ggplot(bleaching_aoi_grouped, aes(x = mean_temp_c)) +
   geom_histogram(fill = "deepskyblue3") +
-  labs(x = "Temperature",
+  labs(x = "Temperature (°C)",
        y = "Count")
 histo_temp
 
@@ -76,27 +78,45 @@ histo_turbidity
 
 histo_cyclone <- ggplot(bleaching_aoi_grouped, aes(x = mean_cyclone)) +
   geom_histogram(fill = "deepskyblue3") +
-  labs(x = "Cyclone",
+  labs(x = "Cyclone Frequency",
        y = "Count")
 histo_cyclone
 
 histo_distance <- ggplot(bleaching_aoi_grouped, aes(x = mean_distance_to_shore)) +
   geom_histogram(fill = "deepskyblue3") +
-  labs(x = "Distance to Shore (meter) ",
+  labs(x = "Distance to Shore (m) ",
        y = "Count")
 histo_distance
 
 histo_depth <- ggplot(bleaching_aoi_grouped, aes(x = mean_depth)) +
   geom_histogram(fill = "deepskyblue3") +
-  labs(x = "Depth (meter) ",
+  labs(x = "Depth (m) ",
        y = "Count")
 histo_depth
 
 histo_mass_bleach <- ggplot(bleaching_aoi_grouped, aes(x = pct_bleaching_50)) +
-  geom_histogram(fill = "deepskyblue3") +
-  labs(x = "Mass Bleaching ",
+  geom_bar(fill = "deepskyblue3") +
+  labs(x = "Mass Bleaching Presence",
        y = "Count")
 histo_mass_bleach
+
+scatter_temp <- ggplot(bleaching_aoi_grouped, aes(x = mean_temp_c, y = pct_bleaching_50)) +
+  geom_point(color = "deepskyblue4") +
+  labs(x = "Temperature (°C)",
+       y = "Mass Bleaching Presence") 
+scatter_temp
+
+scatter_cyclone <- ggplot(bleaching_aoi_grouped, aes(x = mean_cyclone, y = pct_bleaching_50)) +
+  geom_point(color = "deepskyblue4") +
+  labs(x = "Cyclone Frequency",
+       y = "Mass Bleaching Presence")
+scatter_cyclone
+
+scatter_turbidity <- ggplot(bleaching_aoi_grouped, aes(x = mean_turbidity, y = pct_bleaching_50)) +
+  geom_point(color = "deepskyblue4") +
+  labs(x = "Turbidity",
+       y = "Mass Bleaching Presence")
+scatter_turbidity
 
 # understanding how the 0s affect our linear relationship
 bleaching_aoi_grouped %>% 
@@ -108,10 +128,51 @@ ggplot(aes(x = mean_temp_c, y = mean_pct_bleach))+
 ```
 
 ```{r}
+# Histogram for presentation
+histograms <- (histo_mass_bleach + histo_temp) / (histo_cyclone + histo_turbidity)  
+ # plot_annotation(
+ # title = "Distributions of Each Covariate Relevant to Coral Bleaching")
+histograms
+
+# Scatters
+scatterplots <- (scatter_temp + scatter_turbidity) + (scatter_cyclone)
+scatterplots
+```
+
+
+```{r}
+# Check for multi-collinearity
+cor.test(bleaching_aoi_grouped$pct_bleaching_50, bleaching_aoi_grouped$mean_temp_c) # not correlated
+cor.test(bleaching_aoi_grouped$pct_bleaching_50, bleaching_aoi_grouped$mean_turbidity) # not correlated
+cor.test(bleaching_aoi_grouped$pct_bleaching_50, bleaching_aoi_grouped$mean_cyclone) # not correlated
+cor.test(bleaching_aoi_grouped$pct_bleaching_50, bleaching_aoi_grouped$mean_distance_to_shore) # not correlated
+cor.test(bleaching_aoi_grouped$pct_bleaching_50, bleaching_aoi_grouped$mean_depth) # not correlated
+
+cor.test(bleaching_aoi_grouped$mean_temp, bleaching_aoi_grouped$mean_turbidity) # not correlated
+cor.test(bleaching_aoi_grouped$mean_temp, bleaching_aoi_grouped$mean_cyclone) # not correlated
+cor.test(bleaching_aoi_grouped$mean_temp, bleaching_aoi_grouped$mean_distance_to_shore) # not correlated
+cor.test(bleaching_aoi_grouped$mean_temp, bleaching_aoi_grouped$mean_depth) # not correlated
+
+cor.test(bleaching_aoi_grouped$mean_turbidity, bleaching_aoi_grouped$mean_cyclone) # not correlated
+cor.test(bleaching_aoi_grouped$mean_turbidity, bleaching_aoi_grouped$mean_distance_to_shore) # not correlated
+cor.test(bleaching_aoi_grouped$mean_turbidity, bleaching_aoi_grouped$mean_depth) # not correlated
+
+cor.test(bleaching_aoi_grouped$mean_cyclone, bleaching_aoi_grouped$mean_distance_to_shore) # not correlated
+cor.test(bleaching_aoi_grouped$mean_cyclone, bleaching_aoi_grouped$mean_depth) # not correlated
+
+cor.test(bleaching_aoi_grouped$mean_distance_to_shore,
+         bleaching_aoi_grouped$mean_depth) # not correlated
+```
+
+
+```{r}
 
 # fit logistic regression model
 #in this part of the code, if we remove depth / distance to shore, the results would look slightly different
 # so feel free to play around with the different variables
+bleaching_aoi_grouped$pct_bleaching_50 <- factor(bleaching_aoi_grouped$pct_bleaching_50,
+  levels = c(0, 1))
+
 bleaching_binomial_model <- glm(pct_bleaching_50 ~ mean_temp_c  + mean_cyclone + mean_turbidity,
                         family = binomial, 
                         data = bleaching_aoi_grouped)
@@ -119,7 +180,49 @@ summary(bleaching_binomial_model)
 AIC(bleaching_binomial_model)
 simulateResiduals(bleaching_binomial_model) %>% 
   plot()
+```
 
+```{r}
+<<<<<<< HEAD
+# trying to get rid of the 0s
+bleaching_aoi_n0 <-bleaching_aoi_grouped %>% 
+  filter(mean_pct_bleach !=0)%>% 
+  mutate(mean_pct_bleach_log = log10(mean_pct_bleach+0.001))
+
+#check for normality before moving on
+skewness(bleaching_aoi_n0$mean_pct_bleach_log)
+kurtosis(bleaching_aoi_n0$mean_pct_bleach_log)
+
+#also plot out the data distribution
+plot2 <- ggplot(aes(x=mean_pct_bleach_log), data = bleaching_aoi_n0)+
+  geom_histogram()
+plot2
+
+```
+
+```{r}
+# linear regression
+bleaching_linear_model <- lm(mean_pct_bleach_log ~ mean_temp + mean_cyclone + mean_turbidity + mean_distance_to_shore,
+                        data = bleaching_aoi_n0)
+
+summary(bleaching_linear_model)
+plot(bleaching_linear_model)
+
+=======
+# Plot predictions
+# Helpful website: https://statsandr.com/blog/binary-logistic-regression-in-r/
+plot_model(bleaching_binomial_model, title = "",
+  type = "pred",
+  terms = "mean_temp_c") +
+  labs(x = "Temperature (°C)",
+    y = "Probability of Mass Bleaching")
+
+plot_model(bleaching_binomial_model, title = "",
+           type = "pred",
+           terms = "mean_turbidity") +
+  labs(x = "Turbidity",
+       y = "Probability of Mass Bleaching")
+>>>>>>> 3725885140947b54533fe5cd8cf99057299af23d
 ```
 
 ```{r}
@@ -148,4 +251,5 @@ summary(bleaching_linear_model)
 plot(bleaching_linear_model)
 
 ```
+
 
