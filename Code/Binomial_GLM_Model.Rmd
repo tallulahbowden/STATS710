@@ -17,6 +17,7 @@ library(lmerTest)
 library(sjPlot)
 library(plotly)
 library(car)
+library(moments)
 
 #load data
 bleaching_all <- read.csv("Code/global_bleaching_environmental.csv")
@@ -120,3 +121,31 @@ simulateResiduals(bleaching_binomial_model) %>%
   plot()
 
 ```
+
+```{r}
+# trying to get rid of the 0s
+bleaching_aoi_n0 <-bleaching_aoi_grouped %>% 
+  filter(mean_pct_bleach !=0)%>% 
+  mutate(mean_pct_bleach_log = log10(mean_pct_bleach+0.001))
+
+#check for normality before moving on
+skewness(bleaching_aoi_n0$mean_pct_bleach_log)
+kurtosis(bleaching_aoi_n0$mean_pct_bleach_log)
+
+#also plot out the data distribution
+plot2 <- ggplot(aes(x=mean_pct_bleach_log), data = bleaching_aoi_n0)+
+  geom_histogram()
+plot2
+
+```
+
+```{r}
+# linear regression
+bleaching_linear_model <- lm(mean_pct_bleach_log ~ mean_temp + mean_cyclone + mean_turbidity + mean_distance_to_shore,
+                        data = bleaching_aoi_n0)
+
+summary(bleaching_linear_model)
+plot(bleaching_linear_model)
+
+```
+
