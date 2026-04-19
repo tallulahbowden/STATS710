@@ -125,7 +125,7 @@ cor.test(bleaching_combine$mean_cyclone, bleaching_combine$mean_distance_to_shor
 
 ```{r figures to submit, message=F, warning=F}
 # Histograms
-histograms <- (hist_bleaching + hist_temp + hist_turbidity) / (hist_cyclone + hist_dist_to_shore) + 
+histograms <- (hist_bleaching1 + hist_temp + hist_turbidity) / (hist_cyclone + hist_dist_to_shore) + 
   plot_annotation(
   title = "Distributions of Each Covariate Relevant to Coral Bleaching")
 histograms

@@ -101,19 +101,19 @@ histo_mass_bleach <- ggplot(bleaching_aoi_grouped, aes(x = pct_bleaching_50)) +
 histo_mass_bleach
 
 scatter_temp <- ggplot(bleaching_aoi_grouped, aes(x = mean_temp_c, y = pct_bleaching_50)) +
-  geom_point(color = "deepskyblue4") +
+  geom_boxplot(color = "deepskyblue4") +
   labs(x = "Temperature (°C)",
        y = "Mass Bleaching Presence") 
 scatter_temp
 
 scatter_cyclone <- ggplot(bleaching_aoi_grouped, aes(x = mean_cyclone, y = pct_bleaching_50)) +
-  geom_point(color = "deepskyblue4") +
+  geom_boxplot(color = "deepskyblue4") +
   labs(x = "Cyclone Frequency",
        y = "Mass Bleaching Presence")
 scatter_cyclone
 
 scatter_turbidity <- ggplot(bleaching_aoi_grouped, aes(x = mean_turbidity, y = pct_bleaching_50)) +
-  geom_point(color = "deepskyblue4") +
+  geom_boxplot(color = "deepskyblue4") +
   labs(x = "Turbidity",
        y = "Mass Bleaching Presence")
 scatter_turbidity
@@ -135,7 +135,7 @@ histograms <- (histo_mass_bleach + histo_temp) / (histo_cyclone + histo_turbidit
 histograms
 
 # Scatters
-scatterplots <- (scatter_temp + scatter_turbidity) + (scatter_cyclone)
+scatterplots <- scatter_temp + scatter_turbidity + scatter_cyclone
 scatterplots
 ```
 
@@ -215,8 +215,38 @@ kurtosis(bleaching_aoi_n0$mean_pct_bleach_log)
 
 #also plot out the data distribution
 plot2 <- ggplot(aes(x=mean_pct_bleach_log), data = bleaching_aoi_n0)+
-  geom_histogram()
+  geom_histogram(fill = "blue4") +
+  labs(x = "Log Percent Bleaching",
+       y = "Count")
 plot2
+
+# plot relationship between covariates and bleaching
+scatter_temp_n0 <- ggplot(bleaching_aoi_n0, aes(x = mean_temp_c, y = mean_pct_bleach_log)) +
+  geom_point(color = "deepskyblue4") +
+  labs(x = "Temperature (°C)",
+       y = "Log Percent Bleaching") 
+scatter_temp_n0
+
+scatter_cyclone_n0 <- ggplot(bleaching_aoi_n0, aes(x = mean_cyclone, y = mean_pct_bleach_log)) +
+  geom_point(color = "deepskyblue4") +
+  labs(x = "Cyclone Frequency",
+       y = "Log Percent Bleaching")
+scatter_cyclone_n0
+
+scatter_turbidity_n0 <- ggplot(bleaching_aoi_n0, aes(x = mean_turbidity, y = mean_pct_bleach_log)) +
+  geom_point(color = "deepskyblue4") +
+  labs(x = "Turbidity",
+       y = "Log Percent Bleaching")
+scatter_turbidity_n0
+
+scatter_distance_n0 <- ggplot(bleaching_aoi_n0, aes(x = mean_distance_to_shore, y = mean_pct_bleach_log)) +
+  geom_point(color = "deepskyblue4") +
+  labs(x = "Distance to shore (m)",
+       y = "Log Percent Bleaching")
+scatter_distance_n0
+
+relationships <- (scatter_temp_n0 + scatter_turbidity_n0) / (scatter_cyclone_n0 + scatter_distance_n0)
+relationships
 
 ```
 
