@@ -254,7 +254,11 @@ bleaching_linear_model <- lm(mean_pct_bleach_log ~ mean_temp + mean_cyclone + me
 
 summary(bleaching_linear_model)
 AIC(bleaching_linear_model)
-plot_model(bleaching_linear_model)
+plot(bleaching_linear_model)
+plot_model(bleaching_linear_model,
+           title = "",
+           axis.labels = c("Distance to shore (m)", "Turbidity", "Cyclone Frequency", "Temperature (C)"),
+           show.values = T)
 
 #linear regression for maybe mass bleaching threshold??
 mass_bleaching_linear_model <- lm(pct_bleaching_50 ~ mean_temp + mean_cyclone + mean_turbidity,
