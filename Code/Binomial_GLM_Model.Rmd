@@ -184,9 +184,7 @@ simulateResiduals(bleaching_binomial_model) %>%
 
 
 ```{r}
-<<<<<<< HEAD
 
-=======
 # Plot predictions
 # Helpful website: https://statsandr.com/blog/binary-logistic-regression-in-r/
 plot_model(bleaching_binomial_model, title = "",
@@ -200,7 +198,6 @@ plot_model(bleaching_binomial_model, title = "",
            terms = "mean_turbidity") +
   labs(x = "Turbidity",
        y = "Probability of Mass Bleaching")
->>>>>>> 3725885140947b54533fe5cd8cf99057299af23d
 ```
 
 ```{r}
@@ -257,7 +254,7 @@ bleaching_linear_model <- lm(mean_pct_bleach_log ~ mean_temp + mean_cyclone + me
 
 summary(bleaching_linear_model)
 AIC(bleaching_linear_model)
-plot(bleaching_linear_model)
+plot_model(bleaching_linear_model)
 
 #linear regression for maybe mass bleaching threshold??
 mass_bleaching_linear_model <- lm(pct_bleaching_50 ~ mean_temp + mean_cyclone + mean_turbidity,
